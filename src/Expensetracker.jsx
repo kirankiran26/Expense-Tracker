@@ -1,29 +1,40 @@
 import React, { useEffect, useState } from 'react'
-
+import './editbutton.css'
 const Expensetracker = () => {
   const initiallist = {
     name: ["Breakfast ", "Lunch", "Dinner"],
     amount: [30, 50, 100],
   }
   const weekExpenses={
-    day:["Sunday","Monday"],
-    dayamount:[123,100],   
+    day:["Sunday","Monday","Wednesday","Thursday","Friday","Saturday"],
+    dayamount:[1,2,3,4,5,6,7],   
+  }
+  const yearExpenses={
+    Mounth:["January","February","March","April","May","June","July","August","September","October","November","December"],
+    MounthAMount:[1,2,3,4,5,6,7,8,9,10,11,12],
   }
   const [newitem, setnewitem] = useState("");
   const [newamount, setnewamount] = useState("");
   const [Expenselist, setExpenselist] = useState(initiallist);
   const [sum, setsum] = useState(0);
   const [weeksum,setweelsum]=useState(0);
+  const [yearsum,setyearsum]=useState(0);
+  const [balance ,setbalance]=useState(100)
 
   useEffect(() => {
     tofindtotalsum()
   }, [Expenselist, newamount]);
 
+
+
+
   const tofindtotalsum = () => {
     const finalsum = Expenselist.amount.reduce((num, currentValue) => num + parseInt(currentValue), 0);
     const weeksum=weekExpenses.dayamount.reduce((num,currentValue)=>num+parseInt(currentValue),0);
+    const yearsum=yearExpenses.MounthAMount.reduce((num,currentValue)=>num+parseInt(currentValue),0);
     setsum(finalsum);
     setweelsum(weeksum);
+    setyearsum(yearsum);
   }
 
   const addingnewexpences = () => {
@@ -34,22 +45,29 @@ const Expensetracker = () => {
       }));
       setnewamount("");
       setnewitem("");
+      setbalance(balance-parseInt(newamount))
     } else {
       alert("Invalid input");
     }
   }
 
   return (
-    <div className="p-5">
-      <div className="text-center mb-5">
-        <h1 className="font-bold text-2xl">Expense Tracker</h1>
+    <div >
+     <div >
+     <div >
+        <h1 className="font-bold text-2xl text-center ">Expense Tracker</h1>
       </div>
+      <div className="text-end font-bold">
+        Acount Balance:- {balance}
+        <button className="button-3 mx-5" role="button">Add Amount</button>
+      </div>
+     </div>
 
       <div className="flex justify-center mb-5">
         <div className="flex gap-2">
           <input
             type="text"
-            className="border-2 border-blue-300 rounded-md p-2"
+            className="border-2 border-blue-300 rounded-md p-2 capitalize"
             placeholder="Enter Expense"
             value={newitem}
             onChange={(evt) => setnewitem(evt.target.value)}
@@ -63,43 +81,65 @@ const Expensetracker = () => {
           />
           <button
             className="bg-blue-500 text-white rounded-md p-2"
-            onClick={addingnewexpences}
+            onClick={addingnewexpences  }
           >
             Add
           </button>
         </div>
       </div>
-
-      <div className="flex justify-center mb-5">
-        <table className="min-w-full bg-white">
-          <caption className="text-gray-600 font-bold mb-2">Today's Expense's({new Date().toLocaleDateString()})</caption>
-          <thead>
-            <tr className="bg-blue-500 text-white">
-              <th className="w-1/2 py-2">Expense Name</th>
-              <th className="w-1/2 py-2">Expense Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Expenselist.name.map((item, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="py-2 px-4">{item}</td>
-                <td className="py-2 px-4 text-center">{Expenselist.amount[index]}</td>
+      <div>
+      <div>
+    <table className="w-full">
+        <caption class="no-wrap font-bold mb-1">Today's Expenses</caption>
+        <thead className="h-10" >
+          <tr className="bg-blue-500 ">
+            <th>Expense name </th>
+            <th>Expense cost  </th>
+            <th>Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+            {
+              Expenselist.name.map((item,index)=>(
+                <tr key={index} className="text-center border-b border-gray-200 ">
+                <td>{item}</td>
+                <td>{Expenselist.amount[index]}</td>
+                <td>
+                <button class="button-6" role="button">edit</button>
+                </td>
               </tr>
-            ))}
+              ))
+            }
           </tbody>
-        </table>
+    </table>
+
+</div>
+
       </div>
+      
+
 
       <div className="text-center font-bold text-xl">
         Total: {sum}
       </div>
-      <div className="className=flex justify-center mt-10">
-        <table className="w-1/2 bg-white">
+      <br />
+
+
+      <div className="h-1 w-full bg-slate-500"></div>
+
+      <br />
+
+
+
+      <div className="flex justify-around">
+      <div className=" week  mt-0">
+        <table className="bg-white w-80">
           <caption className="text-center font-bold">This week Expense's</caption>
           <thead>
-            <tr className="bg-blue-400 text-white">
+            <tr className="bg-blue-400 h-10">
               <th>Day</th>
               <th>Expnses</th>
+              <th>Edit</th>
             </tr>
 
           </thead>
@@ -109,16 +149,63 @@ const Expensetracker = () => {
                 <tr key={index} className="text-center border-b border-gray-200 ">
                   <td>{day}</td>
                   <td>{weekExpenses.dayamount[index]}</td>
+                  <td>
+                  <button class="button-6" role="button">edit</button>
+                  </td>
                 </tr>
               ))
             }
           </tbody>
         </table>
-        
+        <div>
+        <h1 className=" font-bold text-center">Total:-{weeksum}</h1>
       </div>
+      </div>
+
+
+
+      <div className="font-bold">
+        This Mounth
+        <div className="w-24 h-24 rounded-full border-8 text-center border-red-500 mt-40 flex items-center justify-center">100</div>
+
+      </div>
+
+
+
+
+
+
+
       <div>
-        <h1 className="ml-60 font-extrabold">Total:-{weeksum}</h1>
+        <table className="w-1/3">
+          <caption className="font-bold">This Year  </caption>
+          <thead>
+            <tr className="bg-blue-500 h-10">
+              <th>Mounth </th>
+              <th>Expence's </th>
+              <th>Edit</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              yearExpenses.Mounth.map((mounth,index)=>(
+                <tr key={index} className="text-center border-b border-gray-200 ">
+                  <td>{mounth}</td>
+                  <td>{yearExpenses.MounthAMount[index]}</td>
+                  <td>
+                  <button class="button-6" role="button">edit</button>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+        <div className="font-bold text-center">
+          Total :-{yearsum}
+        </div>
       </div>
+      </div>
+      <div className="h-1 w-full bg-slate-500"></div>
     </div>
   );
 }
