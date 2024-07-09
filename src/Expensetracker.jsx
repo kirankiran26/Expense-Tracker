@@ -19,7 +19,19 @@ const Expensetracker = () => {
   const [sum, setsum] = useState(0);
   const [weeksum,setweelsum]=useState(0);
   const [yearsum,setyearsum]=useState(0);
-  const [balance ,setbalance]=useState(100)
+  const [addamount,setaddamount]=useState(false);
+  const [newaddingamount,setnewaddingamount]=useState('');
+  const [balance, setBalance] = useState(() => {
+    // Retrieve the balance from localStorage, or set it to 100 if not found
+    const savedBalance = localStorage.getItem('balance');
+    return savedBalance !== null ? parseInt(savedBalance, 10) : 100;
+});
+
+
+useEffect(() => {
+  // Update localStorage whenever balance changes
+  localStorage.setItem('balance', balance);
+}, [balance]);
 
   useEffect(() => {
     tofindtotalsum()
@@ -51,16 +63,34 @@ const Expensetracker = () => {
     }
   }
 
+  const updatingaddedamount=()=>{
+    const addedamount=parseInt(newaddingamount,10);
+    if(!isNaN(addedamount)) {
+    setBalance((prevbalance)=>prevbalance+addedamount);
+      setaddamount(false);
+      setnewaddingamount('')
+    }
+  }
+
   return (
     <div >
      <div >
      <div >
         <h1 className="font-bold text-2xl text-center ">Expense Tracker</h1>
       </div>
-      <div className="text-end font-bold">
-        Acount Balance:- {balance}
-        <button className="button-3 mx-5" role="button">Add Amount</button>
-      </div>
+        {
+         addamount ? (
+         <div className="text-end font-bold">
+           <input type="number" className="mx-5 " value={newaddingamount} onChange={(evt)=>setnewaddingamount(evt.target.value)} placeholder='Enter the amount' id="" />
+           <button className="button-3 mx-5" role="button" onClick={(evt)=>updatingaddedamount(evt)}>Add </button>
+         </div>
+         ):(
+          <div className="text-end font-bold">
+          Acount Balance:- {balance}
+          <button className="button-3 mx-5" role="button" onClick={(evt)=>setaddamount(true)}>Add Amount</button>
+        </div>
+         )
+        }
      </div>
 
       <div className="flex justify-center mb-5">
@@ -102,7 +132,7 @@ const Expensetracker = () => {
             {
               Expenselist.name.map((item,index)=>(
                 <tr key={index} className="text-center border-b border-gray-200 ">
-                <td>{item}</td>
+                <td className="capitalize">{item}</td>
                 <td>{Expenselist.amount[index]}</td>
                 <td>
                 <button class="button-6" role="button">edit</button>
