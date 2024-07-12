@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './editbutton.css'
+import { useMounthedit } from './editbuttonfils/Mounthedit'
 const Expensetracker = () => {
   const initiallist = {
     name: ["Breakfast ", "Lunch", "Dinner"],
@@ -27,6 +28,14 @@ const Expensetracker = () => {
     return savedBalance !== null ? parseInt(savedBalance, 10) : 100;
 });
 
+const{
+  mounthsum,
+  mounthedit,
+  newmounthamount,
+  handelMountheditclick,
+  handelMounthsaveclick,
+  handelmountinput,
+}=useMounthedit()
 
 useEffect(() => {
   // Update localStorage whenever balance changes
@@ -196,8 +205,25 @@ useEffect(() => {
 
       <div className="font-bold">
         This Mounth
-        <div className="w-24 h-24 rounded-full border-8 text-center border-red-500 mt-40 flex items-center justify-center">100</div>
-
+        <div className="w-24 h-24 rounded-full border-8 text-center border-red-500 mt-40 flex items-center justify-center">
+        {
+          mounthedit?(
+            <input type="number" placeholder='enter the amount' id="" onChange={handelmountinput} />
+          ):(
+            mounthsum
+          )
+        }
+        </div>
+        <br />
+        <>
+        {
+          mounthedit?(
+            <button class="button-6" role="button" onClick={handelMounthsaveclick}>save</button>
+          ):(
+            <button class="button-6" role="button" onClick={handelMountheditclick}>edit</button>
+          )
+        }
+        </>
       </div>
 
 
