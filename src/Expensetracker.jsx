@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import './editbutton.css'
 import { useMounthedit } from './editbuttonfils/Mounthedit'
+import { useWeekedit } from './editbuttonfils/Weekedit'
 const Expensetracker = () => {
   const initiallist = {
     name: ["Breakfast ", "Lunch", "Dinner"],
     amount: [30, 50, 100],
   }
-  const weekExpenses={
-    day:["Sunday","Monday","Wednesday","Thursday","Friday","Saturday"],
-    dayamount:[1,2,3,4,5,6,7],   
-  }
+  
   const yearExpenses={
     Mounth:["January","February","March","April","May","June","July","August","September","October","November","December"],
     MounthAMount:[1,2,3,4,5,6,7,8,9,10,11,12],
@@ -37,6 +35,16 @@ const{
   handelmountinput,
 }=useMounthedit()
 
+const {
+  weeklist,
+  editWeekIndex,
+  newWeekAmount,
+  handleWeekEditClick,
+  handleWeekInputChange,
+  handleWeekSaveClick,
+} = useWeekedit();
+
+
 useEffect(() => {
   // Update localStorage whenever balance changes
   localStorage.setItem('balance', balance);
@@ -51,7 +59,7 @@ useEffect(() => {
 
   const tofindtotalsum = () => {
     const finalsum = Expenselist.amount.reduce((num, currentValue) => num + parseInt(currentValue), 0);
-    const weeksum=weekExpenses.dayamount.reduce((num,currentValue)=>num+parseInt(currentValue),0);
+    const weeksum=weeklist.dayamount.reduce((num,currentValue)=>num+parseInt(currentValue),0);
     const yearsum=yearExpenses.MounthAMount.reduce((num,currentValue)=>num+parseInt(currentValue),0);
     setsum(finalsum);
     setweelsum(weeksum);
@@ -184,14 +192,39 @@ useEffect(() => {
           </thead>
           <tbody> 
             {
-              weekExpenses.day.map((day,index)=>(
-                <tr key={index} className="text-center border-b border-gray-200 ">
-                  <td>{day}</td>
-                  <td>{weekExpenses.dayamount[index]}</td>
-                  <td>
-                  <button class="button-6" role="button">edit</button>
-                  </td>
-                </tr>
+              weeklist.day.map((day,index)=>(
+                <tr key={index} className="text-center border-b border-gray-200">
+                <td className="py-3 px-4">{day}</td>
+                <td className="py-3 px-4">
+                  {editWeekIndex === index ? (
+                    <input
+                      type="number"
+                      value={newWeekAmount}
+                      onChange={handleWeekInputChange}
+                      className="border rounded py-1 px-2"
+                    />
+                  ) : (
+                    weeklist.dayamount[index]
+                  )}
+                </td>
+                <td className="py-3 px-4">
+                  {editWeekIndex === index ? (
+                    <button
+                      className="button-6"
+                      onClick={() => handleWeekSaveClick(index)}
+                    >
+                      Save
+                    </button>
+                  ) : (
+                    <button
+                      className="button-6"
+                      onClick={() => handleWeekEditClick(index)}
+                    >
+                      Edit
+                    </button>
+                  )}
+                </td>
+              </tr>
               ))
             }
           </tbody>
