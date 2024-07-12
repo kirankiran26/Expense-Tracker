@@ -2,16 +2,15 @@ import React, { useEffect, useState } from 'react'
 import './editbutton.css'
 import { useMounthedit } from './editbuttonfils/Mounthedit'
 import { useWeekedit } from './editbuttonfils/Weekedit'
+import { useYearedit } from './editbuttonfils/Yearedit'
 const Expensetracker = () => {
   const initiallist = {
     name: ["Breakfast ", "Lunch", "Dinner"],
     amount: [30, 50, 100],
   }
-  
-  const yearExpenses={
-    Mounth:["January","February","March","April","May","June","July","August","September","October","November","December"],
-    MounthAMount:[1,2,3,4,5,6,7,8,9,10,11,12],
-  }
+  // Store initiallist in local storage
+localStorage.setItem('initiallist', JSON.stringify('initiallist'));
+
   const [newitem, setnewitem] = useState("");
   const [newamount, setnewamount] = useState("");
   const [Expenselist, setExpenselist] = useState(initiallist);
@@ -20,6 +19,35 @@ const Expensetracker = () => {
   const [yearsum,setyearsum]=useState(0);
   const [addamount,setaddamount]=useState(false);
   const [newaddingamount,setnewaddingamount]=useState('');
+  const [todaylist, settodaylist] = useState(initiallist);
+  const [edittodayIndex, setedittodayIndex] = useState(null);
+  const [newtodayAmount, setnewtodayAmount] = useState('');
+
+  useEffect(() => {
+    const savedData = localStorage.getItem('todaylist');
+    if (savedData) {
+      settodaylist(JSON.parse(savedData));
+    }
+  }, []);
+
+  const handleTodayEditClick = (index) => {
+    setedittodayIndex(index);
+    setnewtodayAmount(todaylist.amount[index]);
+  };
+
+  const handleTodayInputChange = (e) => {
+    setnewtodayAmount(e.target.value);
+  };
+
+  const handleTodaySaveClick = (index) => {
+    const updatedList = { ...todaylist };
+    updatedList.amount[index] = Number(newtodayAmount); // Update the amount
+    settodaylist(updatedList);
+    localStorage.setItem('todaylist', JSON.stringify(updatedList)); // Save updated data to localStorage
+    setedittodayIndex(null); // Reset the edit index
+  };
+
+
   const [balance, setBalance] = useState(() => {
     // Retrieve the balance from localStorage, or set it to 100 if not found
     const savedBalance = localStorage.getItem('balance');
@@ -45,6 +73,16 @@ const {
 } = useWeekedit();
 
 
+const {
+  yearlist,
+  editYearIndex,
+  newYearAmount,
+  handleYearEditClick,
+  handleYearInputChange,
+  handleYearSaveClick,
+}=useYearedit()
+
+
 useEffect(() => {
   // Update localStorage whenever balance changes
   localStorage.setItem('balance', balance);
@@ -52,7 +90,7 @@ useEffect(() => {
 
   useEffect(() => {
     tofindtotalsum()
-  }, [Expenselist, newamount]);
+  }, [Expenselist, newamount,weeklist,yearlist  ]);
 
 
 
@@ -60,7 +98,7 @@ useEffect(() => {
   const tofindtotalsum = () => {
     const finalsum = Expenselist.amount.reduce((num, currentValue) => num + parseInt(currentValue), 0);
     const weeksum=weeklist.dayamount.reduce((num,currentValue)=>num+parseInt(currentValue),0);
-    const yearsum=yearExpenses.MounthAMount.reduce((num,currentValue)=>num+parseInt(currentValue),0);
+    const yearsum=yearlist.MounthAMount.reduce((num,currentValue)=>num+parseInt(currentValue),0);
     setsum(finalsum);
     setweelsum(weeksum);
     setyearsum(yearsum);
@@ -68,17 +106,30 @@ useEffect(() => {
 
   const addingnewexpences = () => {
     if (newitem.trim() !== "" && newamount !== "") {
-      setExpenselist(prevstate => ({
-        name: [...prevstate.name, newitem],
-        amount: [...prevstate.amount, newamount],
+      // Update expense list with new item and amount
+      setExpenselist(prevState => ({
+        name: [...prevState.name, newitem],
+        amount: [...prevState.amount, newamount],
       }));
+  
+      // Update balance
+      setBalance(prevBalance => prevBalance - parseInt(newamount));
+  
+      // Clear input fields
       setnewamount("");
       setnewitem("");
-      setbalance(balance-parseInt(newamount))
+  
+      // Optionally, update local storage with updated expenselist
+      const updatedList = {
+        name: [...expenselist.name, newitem],
+        amount: [...expenselist.amount, newamount],
+      };
+      localStorage.setItem('expenselist', JSON.stringify(updatedList));
     } else {
       alert("Invalid input");
     }
-  }
+  };
+  
 
   const updatingaddedamount=()=>{
     const addedamount=parseInt(newaddingamount,10);
@@ -128,7 +179,7 @@ useEffect(() => {
           />
           <button
             className="bg-blue-500 text-white rounded-md p-2"
-            onClick={addingnewexpences  }
+            onClick={addingnewexpences}
           >
             Add
           </button>
@@ -139,21 +190,19 @@ useEffect(() => {
     <table className="w-full">
         <caption class="no-wrap font-bold mb-1">Today's Expenses</caption>
         <thead className="h-10" >
-          <tr className="bg-blue-500 ">
+          <tr className="bg-blue-500">
             <th>Expense name </th>
             <th>Expense cost  </th>
-            <th>Cost</th>
+            
           </tr>
         </thead>
         <tbody>
             {
               Expenselist.name.map((item,index)=>(
-                <tr key={index} className="text-center border-b border-gray-200 ">
+                <tr key={index} className="text-center border-b border-gray-200 h-14 ">
                 <td className="capitalize">{item}</td>
                 <td>{Expenselist.amount[index]}</td>
-                <td>
-                <button class="button-6" role="button">edit</button>
-                </td>
+                
               </tr>
               ))
             }
@@ -220,7 +269,7 @@ useEffect(() => {
                       className="button-6"
                       onClick={() => handleWeekEditClick(index)}
                     >
-                      Edit
+                      edit
                     </button>
                   )}
                 </td>
@@ -276,18 +325,41 @@ useEffect(() => {
             </tr>
           </thead>
           <tbody>
-            {
-              yearExpenses.Mounth.map((mounth,index)=>(
-                <tr key={index} className="text-center border-b border-gray-200 ">
-                  <td>{mounth}</td>
-                  <td>{yearExpenses.MounthAMount[index]}</td>
-                  <td>
-                  <button class="button-6" role="button">edit</button>
-                  </td>
-                </tr>
-              ))
-            }
-          </tbody>
+          {yearlist.Mounth.map((month, index) => (
+            <tr key={index} className="text-center border-b border-gray-200">
+              <td className="py-3 px-4">{month}</td>
+              <td className="py-3 px-4">
+                {editYearIndex === index ? (
+                  <input
+                    type="number"
+                    value={newYearAmount}
+                    onChange={handleYearInputChange}
+                    className="border rounded py-1 px-2"
+                  />
+                ) : (
+                  yearlist.MounthAMount[index]
+                )}
+              </td>
+              <td className="py-3 px-4">
+                {editYearIndex === index ? (
+                  <button
+                    className="button-6"
+                    onClick={() => handleYearSaveClick(index)}
+                  >
+                    Save
+                  </button>
+                ) : (
+                  <button
+                    className="button-6"
+                    onClick={() => handleYearEditClick(index)}
+                  >
+                    Edit
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
         </table>
         <div className="font-bold text-center">
           Total :-{yearsum}

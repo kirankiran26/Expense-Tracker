@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 export const useWeekedit = () => {
   const weekExpenses = {
     day: ["Sunday", "Monday", "Wednesday", "Thursday", "Friday", "Saturday"],
-    dayamount: [1, 2, 3, 4, 5, 6, 7],
+    dayamount: [0, 0, 0, 0, 0, 0, 0],
   };
 
   const [weeklist, setweeklist] = useState(weekExpenses);

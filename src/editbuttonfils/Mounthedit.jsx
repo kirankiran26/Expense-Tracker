@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export const useMounthedit=()=>{
-    const [mounthsum,setmounthsum]=useState(1000);
+    const [mounthsum,setmounthsum]=useState(100);
     const [mounthedit,setmounthedit]=useState(false);
     const [newmounthamount,setnewmounthamount]=useState('');
     const handelmountinput=(evt)=>{
